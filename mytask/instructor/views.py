@@ -78,7 +78,58 @@ def register_instructor(request):
         return JsonResponse({'error': 'Invalid request method'}, status=405)
     
 @csrf_exempt
-def verify_email_otp(request)
+def verify_email_otp(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            email = data.get('email')
+            otp = data.get('otp')
+
+            instructor = instructor_collection.find_one({"email": email})
+
+            if not instructor:
+                return JsonResponse({"error": "instructor not found."}, status=404)
+            if instructor.get('email_otp') == otp:
+                instructor_collection.update_one({"email": email}, {"$set": {"email_verified": True}})
+                return JsonResponse({"message": "Email verified successfully."})
+            else:
+                return JsonResponse({"error": "Invalid OTP."}, status=400)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format."}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": "Internal server error."}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=405)
             
-                
+@csrf_exempt
+def login_instructor(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            email = data.get('email')
+            password = data.get('password')
+
+            # Validate required fields
+            if not email or not password:
+                return JsonResponse({"error": "Email and password are required."}, status=400)
+            instructor = instructor_collection.find_one({"email": email, "password": password})
+
+            if instructor:
+                if not instructor.get('email_verified', False):
+                    return JsonResponse({"error": "Email is not verified."}, status=403)
+
+                return JsonResponse({
+                    "message": "Login successful.",
+                    "email": email,
+                    "first_name": instructor.get("first_name"),
+                    "last_name": instructor.get("last_name"),
+                })
+            else:
+                return JsonResponse({"error": "Invalid email or password."}, status=401)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format."}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+         
                 

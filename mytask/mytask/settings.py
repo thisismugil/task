@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "student",
+    "instructor",
 ]
 
 MIDDLEWARE = [
@@ -122,4 +124,10 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-EMAIL_BACKEND = 'django'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Replace with your SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'mugil1206@gmail.com'  # Replace with your email
+EMAIL_HOST_PASSWORD = 'hkfcxcjwbtdzbizf'  # Use app password if 2FA is enabled
+DEFAULT_FROM_EMAIL = 'your_email@gmail.com' 
